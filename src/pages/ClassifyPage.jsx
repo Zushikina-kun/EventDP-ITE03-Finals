@@ -321,6 +321,20 @@ export default function ClassifyPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Gender Classifier AI</h1>
           <p className="text-slate-500">Upload an image or use your webcam to classify gender.</p>
+          {/* Model info strip */}
+          <div className="flex flex-wrap justify-center gap-3 mt-4">
+            {[
+              { label: "Model", value: "MobileNetV2" },
+              { label: "Accuracy", value: "90.13%" },
+              { label: "Input", value: "160×160 px" },
+              { label: "Classes", value: "Male / Female" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-full px-3 py-1">
+                <span className="text-xs text-slate-500">{item.label}:</span>
+                <span className="text-xs font-semibold text-violet-400">{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-5">

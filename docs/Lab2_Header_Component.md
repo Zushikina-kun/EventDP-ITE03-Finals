@@ -6,7 +6,6 @@
 - Djaunathan Albert S. Madayag
 - Jan Alexis G. Roldan
 - Jibreel Quimson
-- Christian
 
 **Course / Section:** BSIT-III
 

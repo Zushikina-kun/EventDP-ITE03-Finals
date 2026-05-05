@@ -6,7 +6,6 @@
 - Djaunathan Albert S. Madayag
 - Jan Alexis G. Roldan
 - Jibreel Quimson
-- Christian
 
 **Course / Section:** BSIT-III
 
@@ -176,8 +175,8 @@ The top 54 layers of MobileNetV2 are unfrozen and trained together with the head
 - ReduceLROnPlateau: reduces LR by 50% if val_loss doesn't improve for 3 epochs
 
 ### Final Results
-- **Validation Accuracy: 89.97%**
-- **Validation Loss: 0.2813**
+- **Validation Accuracy: 90.13%**
+- **Validation Loss: 0.2490**
 - Best checkpoint saved at Phase 2, Epoch 3
 
 ---

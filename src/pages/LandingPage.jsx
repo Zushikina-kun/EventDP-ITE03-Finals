@@ -6,7 +6,7 @@ const FEATURES = [
   {
     icon: "🧠",
     title: "MobileNetV2 Transfer Learning",
-    desc: "Built on Google's MobileNetV2 architecture pre-trained on ImageNet, fine-tuned on 48,000 face images for gender classification with 89.97% validation accuracy.",
+    desc: "Built on Google's MobileNetV2 architecture pre-trained on ImageNet, fine-tuned on 48,000+ face images for gender classification with 90.13% validation accuracy.",
   },
   {
     icon: "⚡",
@@ -116,7 +116,7 @@ export default function LandingPage() {
             <p className="text-slate-400 text-sm leading-relaxed">
               The model was trained on approximately <span className="text-white font-medium">48,000 face images</span> from
               the CelebA dataset using two-phase training, achieving
-              <span className="text-violet-400 font-medium"> 89.97% validation accuracy</span>.
+              <span className="text-violet-400 font-medium"> 90.13% validation accuracy</span>.
               It is served through a FastAPI Python backend and integrated into the React frontend.
             </p>
           </div>
@@ -365,7 +365,6 @@ export default function LandingPage() {
                 { initial: "D", name: "Djaunathan Albert S. Madayag", role: "Developer" },
                 { initial: "J", name: "Jan Alexis G. Roldan",         role: "Developer" },
                 { initial: "J", name: "Jibreel Quimson",              role: "Developer" },
-                { initial: "C", name: "Christian",                    role: "Developer" },
               ].map((member) => (
                 <div key={member.name} className="flex items-center gap-3 bg-slate-800 border border-slate-700 rounded-xl p-4">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-sm font-black text-white flex-shrink-0">
@@ -411,7 +410,7 @@ export default function LandingPage() {
 
           <div className="border-t border-slate-800 mt-6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
             <p>© 2026 GenderLens AI — ITE03 + EVENTDP Final Project</p>
-            <p>Directo · Rubis · Madayag · Roldan · Quimson · Christian · BSIT-III</p>
+            <p>Directo · Rubis · Madayag · Roldan · Quimson · BSIT-III</p>
           </div>
         </div>
       </footer>

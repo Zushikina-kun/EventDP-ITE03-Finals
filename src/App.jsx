@@ -8,6 +8,7 @@ import StudentsPage from "./pages/students/StudentsPage.jsx";
 import AddStudentPage from "./pages/students/AddStudentPage.jsx";
 import EditStudentPage from "./pages/students/EditStudentPage.jsx";
 import DashboardPage from "./pages/students/DashboardPage.jsx";
+import StudentProfilePage from "./pages/students/StudentProfilePage.jsx";
 import NotFound from "./NotFound.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
@@ -39,6 +40,10 @@ export default function App() {
         <Route
           path="/students/dashboard"
           element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/students/:id"
+          element={<ProtectedRoute><StudentProfilePage /></ProtectedRoute>}
         />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -211,7 +211,11 @@ export default function StudentsPage() {
                     paginated.map((student) => (
                       <tr key={student.id} className="hover:bg-slate-800/50 transition-colors">
                         <td className="px-4 py-3 font-mono text-xs text-slate-500 whitespace-nowrap">{student.student_no}</td>
-                        <td className="px-4 py-3 font-medium text-slate-200">{student.name}</td>
+                        <td className="px-4 py-3 font-medium text-slate-200">
+                          <Link to={`/students/${student.id}`} className="hover:text-violet-400 transition-colors">
+                            {student.name}
+                          </Link>
+                        </td>
                         <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{student.email}</td>
                         <td className="px-4 py-3 hidden md:table-cell">
                           <span className="bg-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded-full">{student.course}</span>
@@ -219,6 +223,10 @@ export default function StudentsPage() {
                         <td className="px-4 py-3 text-slate-500 hidden md:table-cell text-xs">Year {student.year_level}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex justify-end gap-1">
+                            <Link to={`/students/${student.id}`}
+                              className="text-slate-400 hover:text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-700 transition-colors">
+                              View
+                            </Link>
                             <Link to={`/students/edit/${student.id}`}
                               className="text-violet-400 hover:text-violet-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-violet-500/10 transition-colors">
                               Edit
