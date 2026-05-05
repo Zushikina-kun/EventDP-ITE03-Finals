@@ -53,3 +53,7 @@ uploads/
 # ── Misc ──────────────────────────────────────────────────────────────────────
 uvicorn
 project_tree.txt
+
+# Selfie photos and processed output — personal data, not for repo
+selfies/
+selfies_processed/
