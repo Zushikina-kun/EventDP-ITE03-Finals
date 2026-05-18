@@ -23,6 +23,8 @@ This project fuses two separate subject requirements into a single cohesive web 
 - Upload image via drag-and-drop or file picker
 - Live webcam capture mode — take a photo directly from your browser
 - Confidence score with progress bar; low-confidence warning (< 60%)
+- **Both class probabilities displayed** (e.g. Female: 92.3% | Male: 7.7%)
+- **Inference time shown** (e.g. ⚡ 145ms)
 - Classification history log (last 5 results with thumbnails)
 - FastAPI backend serving the model on port 8000
 
@@ -34,7 +36,7 @@ This project fuses two separate subject requirements into a single cohesive web 
 - Register and login with JWT authentication (8-hour token, auto-logout on expiry)
 - Session expiry toast notification
 - Full CRUD: Add, view, edit, and delete student records
-- **Extended student fields:** Student No., Full Name, Email, Course, Year Level, Section, Status (Active/Inactive/Graduated/Dropped), Phone, Address, Guardian Name, Guardian Phone, Date Enrolled, Notes
+- **Extended student fields:** Student No., Full Name, Email, Gender, Birthdate, Course, Year Level, Section, Status (Active/Inactive/Graduated/Dropped), Phone, Address, Nationality, Religion, Civil Status, Guardian Name, Guardian Phone, Date Enrolled, Notes
 - Search across all fields in real time
 - Sortable columns (click any header to sort asc/desc)
 - Pagination (10 records per page)
