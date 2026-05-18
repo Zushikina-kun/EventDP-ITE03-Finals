@@ -117,7 +117,7 @@ The main feature page for the machine learning component:
 Protected pages (require JWT login), with role-based action visibility:
 - **`/students`** — Student list table with real-time search, sortable columns, pagination (10/page), status badges, Export CSV (timestamped), role-gated Edit/Delete buttons
 - **`/students/:id`** — Student profile page with extended info (guardian, phone, address, notes, enrollment date)
-- **`/students/add`** — Full form with required fields (Student No., Name, Email, Course, Year Level) and optional fields (Gender, Birthdate, Nationality, Religion, Civil Status, Section, Status, Phone, Address, Guardian, Notes, Date Enrolled). Only visible to Admin and Staff roles.
+- **`/students/add`** — Full form with required fields (Student No., Name, Email, Course, Year Level) and optional fields (Profile Photo, Gender, Birthdate, Nationality, Religion, Civil Status, Section, Status, Phone, Address, Guardian, Notes, Date Enrolled). Only visible to Admin and Staff roles.
 - **`/students/edit/:id`** — Pre-filled form with all fields. Only visible to Admin and Staff roles.
 - **`/students/dashboard`** — Analytics with 4 stat cards, donut chart (by course), bar chart (by year level)
 

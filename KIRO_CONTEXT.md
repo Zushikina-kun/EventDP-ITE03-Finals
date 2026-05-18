@@ -30,7 +30,7 @@ Both subjects are under the same instructor who merged the requirements.
 
 ### 2. Student Management System (ITE03)
 - **RBAC:** Admin (full access), Staff (add/edit), Viewer (read-only)
-- Full CRUD with extended fields: student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes
+- Full CRUD with extended fields: student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes, profile_image
 - Student statuses: active, inactive, graduated, dropped (with color-coded badges)
 - JWT authentication (8h token, auto-logout with toast notification)
 - Real-time search, sortable columns, pagination (10/page)
@@ -129,7 +129,7 @@ saved_model/                       # model + class_names.json
 
 - RBAC with 3 roles: admin, staff, viewer — enforced on both backend (middleware) and frontend (hasRole)
 - Audit trail logs every action to `audit_log` table with JSON details
-- Extended student schema: gender, birthdate, nationality, religion, civil_status, section, status, phone, address, guardian, date_enrolled, notes
+- Extended student schema: gender, birthdate, nationality, religion, civil_status, section, status, phone, address, guardian, date_enrolled, notes, profile_image
 - Migration script (`migrate.js`) safely upgrades existing databases — idempotent
 - First registered user auto-promoted to admin during migration
 - Delete restricted to admin only (both frontend hidden + backend 403)

@@ -26,7 +26,7 @@ const FEATURES = [
   {
     icon: "🎓",
     title: "Complete Student Management",
-    desc: "Full CRUD with extended fields — student info, contact details, guardian, enrollment status, section, notes. Bulk CSV import for admins.",
+    desc: "Full CRUD with 19 fields — personal info, contact, guardian, enrollment status, profile photo upload. Bulk CSV import for admins.",
   },
   {
     icon: "📊",

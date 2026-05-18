@@ -36,12 +36,13 @@ This project fuses two separate subject requirements into a single cohesive web 
 - Register and login with JWT authentication (8-hour token, auto-logout on expiry)
 - Session expiry toast notification
 - Full CRUD: Add, view, edit, and delete student records
-- **Extended student fields:** Student No., Full Name, Email, Gender, Birthdate, Course, Year Level, Section, Status (Active/Inactive/Graduated/Dropped), Phone, Address, Nationality, Religion, Civil Status, Guardian Name, Guardian Phone, Date Enrolled, Notes
+- **Extended student fields:** Student No., Full Name, Email, Gender, Birthdate, Course, Year Level, Section, Status (Active/Inactive/Graduated/Dropped), Phone, Address, Nationality, Religion, Civil Status, Guardian Name, Guardian Phone, Date Enrolled, Notes, Profile Image
 - Search across all fields in real time
 - Sortable columns (click any header to sort asc/desc)
 - Pagination (10 records per page)
 - Export to timestamped CSV (includes all fields)
 - Bulk import up to 500 students at once (admin only)
+- **Profile image upload** — JPG/PNG/WEBP up to 2MB, stored as base64, shown in profile view
 - Analytics Dashboard with:
   - Total students, course count, most enrolled course, average per course
   - Donut chart — students by course
