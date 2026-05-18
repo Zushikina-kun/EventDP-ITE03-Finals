@@ -10,8 +10,9 @@ export default function EditStudentPage() {
     student_no: "", name: "", email: "", gender: "", birthdate: "",
     course: "", year_level: "", section: "", status: "active",
     phone: "", address: "", nationality: "Filipino", religion: "", civil_status: "Single",
-    guardian_name: "", guardian_phone: "", date_enrolled: "", notes: "",
+    guardian_name: "", guardian_phone: "", date_enrolled: "", notes: "", profile_image: "",
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [error, setError] = useState(null);
@@ -45,7 +46,9 @@ export default function EditStudentPage() {
           guardian_phone: data.guardian_phone || "",
           date_enrolled: data.date_enrolled ? data.date_enrolled.split("T")[0] : "",
           notes: data.notes || "",
+          profile_image: data.profile_image || "",
         });
+        if (data.profile_image) setImagePreview(data.profile_image);
       } catch (err) { setFetchError(err.message); }
       finally { setFetchLoading(false); }
     }
@@ -53,6 +56,21 @@ export default function EditStudentPage() {
   }, [id, token]);
 
   function handleChange(e) { setForm((p) => ({ ...p, [e.target.name]: e.target.value })); }
+
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Profile image must be under 2MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((p) => ({ ...p, profile_image: reader.result }));
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -135,6 +153,24 @@ export default function EditStudentPage() {
             {/* Personal Information */}
             <div>
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Personal Information</h2>
+
+              {/* Profile Image */}
+              <div className="mb-4 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl text-slate-600">👤</span>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wide">Profile Photo</label>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange}
+                    className="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-violet-600 file:text-white hover:file:bg-violet-500 file:cursor-pointer" />
+                  <p className="text-xs text-slate-600 mt-1">JPG, PNG or WEBP. Max 2MB.</p>
+                </div>
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Gender</label>

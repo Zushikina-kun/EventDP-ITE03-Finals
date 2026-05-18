@@ -303,13 +303,13 @@ app.post("/students", authMiddleware, requireRole("admin", "staff"), async (req,
   const validationError = validateStudent(req.body);
   if (validationError) return res.status(400).json({ error: validationError });
 
-  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
+  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes, profile_image } = req.body;
 
   try {
     const [result] = await db.promise().query(
-      `INSERT INTO students (student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null]
+      `INSERT INTO students (student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes, profile_image)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null, profile_image || null]
     );
 
     await logAudit(req.user.id, req.user.username, "create", "students", result.insertId, { student_no, name }, req.ip);
@@ -330,12 +330,12 @@ app.put("/students/:id", authMiddleware, requireRole("admin", "staff"), async (r
   const validationError = validateStudent(req.body);
   if (validationError) return res.status(400).json({ error: validationError });
 
-  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
+  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes, profile_image } = req.body;
 
   try {
     const [result] = await db.promise().query(
-      `UPDATE students SET student_no=?, name=?, email=?, gender=?, birthdate=?, course=?, year_level=?, section=?, status=?, phone=?, address=?, nationality=?, religion=?, civil_status=?, guardian_name=?, guardian_phone=?, date_enrolled=?, notes=? WHERE id=?`,
-      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null, req.params.id]
+      `UPDATE students SET student_no=?, name=?, email=?, gender=?, birthdate=?, course=?, year_level=?, section=?, status=?, phone=?, address=?, nationality=?, religion=?, civil_status=?, guardian_name=?, guardian_phone=?, date_enrolled=?, notes=?, profile_image=? WHERE id=?`,
+      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null, profile_image || null, req.params.id]
     );
     if (result.affectedRows === 0)
       return res.status(404).json({ error: "Student not found" });

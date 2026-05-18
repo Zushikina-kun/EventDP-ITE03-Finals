@@ -83,8 +83,12 @@ export default function StudentProfilePage() {
           {/* Header band */}
           <div className="h-24 bg-gradient-to-r from-violet-600/30 to-indigo-600/30 border-b border-slate-800 relative">
             <div className="absolute -bottom-8 left-7">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-2xl font-black text-white border-4 border-slate-900">
-                {initial}
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-2xl font-black text-white border-4 border-slate-900 overflow-hidden">
+                {student.profile_image ? (
+                  <img src={student.profile_image} alt={student.name} className="w-full h-full object-cover" />
+                ) : (
+                  initial
+                )}
               </div>
             </div>
           </div>

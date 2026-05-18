@@ -43,6 +43,7 @@ async function migrate() {
     `ALTER TABLE students ADD COLUMN guardian_phone VARCHAR(20) DEFAULT NULL AFTER guardian_name`,
     `ALTER TABLE students ADD COLUMN date_enrolled DATE DEFAULT NULL AFTER guardian_phone`,
     `ALTER TABLE students ADD COLUMN notes TEXT DEFAULT NULL AFTER date_enrolled`,
+    `ALTER TABLE students ADD COLUMN profile_image MEDIUMTEXT DEFAULT NULL AFTER notes`,
     `ALTER TABLE students ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
   ];
 
