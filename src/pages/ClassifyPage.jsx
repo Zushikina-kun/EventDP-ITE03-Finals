@@ -5,7 +5,7 @@ const API_URL = `${FASTAPI_URL}/upload`;
 const MAX_HISTORY = 5;
 
 // ─── Confidence bar + low-confidence warning ──────────────────────────────────
-function ResultPanel({ label, confidence }) {
+function ResultPanel({ label, confidence, probabilities, inferenceMs }) {
   if (!label) return null;
   const isFemale  = label === "Female";
   const isLow     = confidence < 60;
@@ -33,6 +33,23 @@ function ResultPanel({ label, confidence }) {
           <div className={`${barColor} h-2 rounded-full transition-all duration-700`} style={{ width: `${confidence}%` }} />
         </div>
       </div>
+      {/* Both class probabilities */}
+      {probabilities && (
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {Object.entries(probabilities).map(([cls, pct]) => (
+            <div key={cls} className="bg-slate-800/50 rounded-lg px-3 py-2">
+              <p className="text-xs text-slate-500">{cls === "Female" ? "👩" : "👨"} {cls}</p>
+              <p className="text-sm font-bold text-slate-300">{pct}%</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Inference time */}
+      {inferenceMs && (
+        <p className="text-xs text-slate-600 mt-3">
+          ⚡ Inference: {inferenceMs}ms
+        </p>
+      )}
     </div>
   );
 }
@@ -107,8 +124,10 @@ function UploadTab({ onResult }) {
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  const label      = result?.label ?? result?.prediction?.label;
-  const confidence = result?.confidence ?? result?.prediction?.confidence;
+  const label         = result?.label ?? result?.prediction?.label;
+  const confidence    = result?.confidence ?? result?.prediction?.confidence;
+  const probabilities = result?.probabilities ?? result?.prediction?.probabilities;
+  const inferenceMs   = result?.inference_ms ?? result?.prediction?.inference_ms;
 
   return (
     <>
@@ -147,7 +166,7 @@ function UploadTab({ onResult }) {
 
       {error && <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-3 text-sm">{error}</div>}
 
-      <ResultPanel label={label} confidence={confidence} />
+      <ResultPanel label={label} confidence={confidence} probabilities={probabilities} inferenceMs={inferenceMs} />
     </>
   );
 }
@@ -242,8 +261,10 @@ function CameraTab({ onResult }) {
     }
   }
 
-  const label      = result?.label ?? result?.prediction?.label;
-  const confidence = result?.confidence ?? result?.prediction?.confidence;
+  const label         = result?.label ?? result?.prediction?.label;
+  const confidence    = result?.confidence ?? result?.prediction?.confidence;
+  const probabilities = result?.probabilities ?? result?.prediction?.probabilities;
+  const inferenceMs   = result?.inference_ms ?? result?.prediction?.inference_ms;
 
   return (
     <>
@@ -303,7 +324,7 @@ function CameraTab({ onResult }) {
 
       {error && <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-3 text-sm">{error}</div>}
 
-      <ResultPanel label={label} confidence={confidence} />
+      <ResultPanel label={label} confidence={confidence} probabilities={probabilities} inferenceMs={inferenceMs} />
     </>
   );
 }

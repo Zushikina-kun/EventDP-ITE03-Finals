@@ -182,6 +182,8 @@ app.get("/auth/me", authMiddleware, async (req, res) => {
 
 const VALID_COURSES = ["BSIT", "BSCS", "BSIS", "BSCE", "BSEE", "BSME", "BSN", "BSBA", "BSED", "Other"];
 const VALID_STATUSES = ["active", "inactive", "graduated", "dropped"];
+const VALID_GENDERS = ["Male", "Female", "Other"];
+const VALID_CIVIL_STATUSES = ["Single", "Married", "Widowed", "Separated"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateStudent(body) {
@@ -201,8 +203,14 @@ function validateStudent(body) {
     return "Year level must be between 1 and 4";
   if (body.status && !VALID_STATUSES.includes(body.status))
     return `Invalid status. Allowed: ${VALID_STATUSES.join(", ")}`;
+  if (body.gender && !VALID_GENDERS.includes(body.gender))
+    return `Invalid gender. Allowed: ${VALID_GENDERS.join(", ")}`;
+  if (body.civil_status && !VALID_CIVIL_STATUSES.includes(body.civil_status))
+    return `Invalid civil status. Allowed: ${VALID_CIVIL_STATUSES.join(", ")}`;
   if (body.phone && !/^[0-9+\-() ]{7,20}$/.test(body.phone))
     return "Invalid phone number format";
+  if (body.birthdate && isNaN(Date.parse(body.birthdate)))
+    return "Invalid birthdate format";
   return null;
 }
 
@@ -295,13 +303,13 @@ app.post("/students", authMiddleware, requireRole("admin", "staff"), async (req,
   const validationError = validateStudent(req.body);
   if (validationError) return res.status(400).json({ error: validationError });
 
-  const { student_no, name, email, course, year_level, section, status, phone, address, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
+  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
 
   try {
     const [result] = await db.promise().query(
-      `INSERT INTO students (student_no, name, email, course, year_level, section, status, phone, address, guardian_name, guardian_phone, date_enrolled, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [student_no, name, email, course, year_level, section || null, status || "active", phone || null, address || null, guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null]
+      `INSERT INTO students (student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null]
     );
 
     await logAudit(req.user.id, req.user.username, "create", "students", result.insertId, { student_no, name }, req.ip);
@@ -322,12 +330,12 @@ app.put("/students/:id", authMiddleware, requireRole("admin", "staff"), async (r
   const validationError = validateStudent(req.body);
   if (validationError) return res.status(400).json({ error: validationError });
 
-  const { student_no, name, email, course, year_level, section, status, phone, address, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
+  const { student_no, name, email, gender, birthdate, course, year_level, section, status, phone, address, nationality, religion, civil_status, guardian_name, guardian_phone, date_enrolled, notes } = req.body;
 
   try {
     const [result] = await db.promise().query(
-      `UPDATE students SET student_no=?, name=?, email=?, course=?, year_level=?, section=?, status=?, phone=?, address=?, guardian_name=?, guardian_phone=?, date_enrolled=?, notes=? WHERE id=?`,
-      [student_no, name, email, course, year_level, section || null, status || "active", phone || null, address || null, guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null, req.params.id]
+      `UPDATE students SET student_no=?, name=?, email=?, gender=?, birthdate=?, course=?, year_level=?, section=?, status=?, phone=?, address=?, nationality=?, religion=?, civil_status=?, guardian_name=?, guardian_phone=?, date_enrolled=?, notes=? WHERE id=?`,
+      [student_no, name, email, gender || null, birthdate || null, course, year_level, section || null, status || "active", phone || null, address || null, nationality || "Filipino", religion || null, civil_status || "Single", guardian_name || null, guardian_phone || null, date_enrolled || null, notes || null, req.params.id]
     );
     if (result.affectedRows === 0)
       return res.status(404).json({ error: "Student not found" });

@@ -102,9 +102,15 @@ export default function StudentProfilePage() {
               <InfoCard label="Course" value={student.course} icon="📚" />
               <InfoCard label="Year Level" value={YEAR_LABELS[student.year_level] ?? `Year ${student.year_level}`} icon="🎓" />
               <InfoCard label="Status" value={student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : "Active"} icon="📋" />
+              {student.gender && <InfoCard label="Gender" value={student.gender} icon="⚧️" />}
+              {student.birthdate && <InfoCard label="Birthdate" value={new Date(student.birthdate).toLocaleDateString()} icon="🎂" />}
               {student.section && <InfoCard label="Section" value={student.section} icon="🏫" />}
               {student.phone && <InfoCard label="Phone" value={student.phone} icon="📱" />}
+              {student.nationality && <InfoCard label="Nationality" value={student.nationality} icon="🌍" />}
+              {student.religion && <InfoCard label="Religion" value={student.religion} icon="🙏" />}
+              {student.civil_status && <InfoCard label="Civil Status" value={student.civil_status} icon="💍" />}
               {student.guardian_name && <InfoCard label="Guardian" value={student.guardian_name} icon="👤" />}
+              {student.guardian_phone && <InfoCard label="Guardian Phone" value={student.guardian_phone} icon="📞" />}
               {student.date_enrolled && <InfoCard label="Date Enrolled" value={new Date(student.date_enrolled).toLocaleDateString()} icon="📅" />}
               <InfoCard label="Student ID" value={`#${student.id}`} icon="🪪" mono />
             </div>

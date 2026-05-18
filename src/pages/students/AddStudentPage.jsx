@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { EXPRESS_API, COURSES, STUDENT_STATUSES } from "../../config/api.js";
+import { EXPRESS_API, COURSES, STUDENT_STATUSES, GENDERS, CIVIL_STATUSES } from "../../config/api.js";
 import { ToastContainer, useToast } from "../../components/Toast.jsx";
 
 export default function AddStudentPage() {
   const [form, setForm] = useState({
-    student_no: "", name: "", email: "", course: "", year_level: "",
-    section: "", status: "active", phone: "", address: "",
+    student_no: "", name: "", email: "", gender: "", birthdate: "",
+    course: "", year_level: "", section: "", status: "active",
+    phone: "", address: "", nationality: "Filipino", religion: "", civil_status: "Single",
     guardian_name: "", guardian_phone: "", date_enrolled: "", notes: "",
   });
-  const [error, setError]   = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { token } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const { toasts, showToast, removeToast } = useToast();
 
   function handleChange(e) {
@@ -90,18 +91,43 @@ export default function AddStudentPage() {
               </div>
             </div>
 
-            {/* Optional Fields */}
+            {/* Personal Information */}
             <div>
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Additional Information <span className="text-slate-600 normal-case">(optional)</span></h2>
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Personal Information <span className="text-slate-600 normal-case">(optional)</span></h2>
               <div className="grid sm:grid-cols-2 gap-4">
-                <FormField label="Section" name="section" value={form.section} onChange={handleChange} placeholder="e.g. 3A" />
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Gender</label>
+                  <select name="gender" value={form.gender} onChange={handleChange}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
+                    <option value="">Select gender</option>
+                    {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </div>
+                <FormField label="Birthdate" name="birthdate" value={form.birthdate} onChange={handleChange} type="date" />
+                <FormField label="Nationality" name="nationality" value={form.nationality} onChange={handleChange} placeholder="e.g. Filipino" />
+                <FormField label="Religion" name="religion" value={form.religion} onChange={handleChange} placeholder="e.g. Roman Catholic" />
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Civil Status</label>
+                  <select name="civil_status" value={form.civil_status} onChange={handleChange}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
+                    {CIVIL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
                 <FormField label="Phone" name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 09171234567" />
-                <FormField label="Date Enrolled" name="date_enrolled" value={form.date_enrolled} onChange={handleChange} type="date" />
-                <FormField label="Guardian Name" name="guardian_name" value={form.guardian_name} onChange={handleChange} placeholder="Parent/Guardian" />
-                <FormField label="Guardian Phone" name="guardian_phone" value={form.guardian_phone} onChange={handleChange} placeholder="Guardian contact" />
               </div>
               <div className="mt-4">
                 <FormField label="Address" name="address" value={form.address} onChange={handleChange} placeholder="Full address" />
+              </div>
+            </div>
+
+            {/* Academic & Guardian */}
+            <div>
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Academic & Guardian <span className="text-slate-600 normal-case">(optional)</span></h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <FormField label="Section" name="section" value={form.section} onChange={handleChange} placeholder="e.g. 3A" />
+                <FormField label="Date Enrolled" name="date_enrolled" value={form.date_enrolled} onChange={handleChange} type="date" />
+                <FormField label="Guardian Name" name="guardian_name" value={form.guardian_name} onChange={handleChange} placeholder="Parent/Guardian" />
+                <FormField label="Guardian Phone" name="guardian_phone" value={form.guardian_phone} onChange={handleChange} placeholder="Guardian contact" />
               </div>
               <div className="mt-4">
                 <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Notes</label>

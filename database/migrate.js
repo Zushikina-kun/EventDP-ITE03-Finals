@@ -30,11 +30,16 @@ async function migrate() {
     `ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`,
 
     // Students table upgrades
+    `ALTER TABLE students ADD COLUMN gender ENUM('Male', 'Female', 'Other') DEFAULT NULL AFTER email`,
+    `ALTER TABLE students ADD COLUMN birthdate DATE DEFAULT NULL AFTER gender`,
     `ALTER TABLE students ADD COLUMN section VARCHAR(20) DEFAULT NULL AFTER year_level`,
     `ALTER TABLE students ADD COLUMN status ENUM('active', 'inactive', 'graduated', 'dropped') NOT NULL DEFAULT 'active' AFTER section`,
     `ALTER TABLE students ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER status`,
     `ALTER TABLE students ADD COLUMN address TEXT DEFAULT NULL AFTER phone`,
-    `ALTER TABLE students ADD COLUMN guardian_name VARCHAR(150) DEFAULT NULL AFTER address`,
+    `ALTER TABLE students ADD COLUMN nationality VARCHAR(50) DEFAULT 'Filipino' AFTER address`,
+    `ALTER TABLE students ADD COLUMN religion VARCHAR(50) DEFAULT NULL AFTER nationality`,
+    `ALTER TABLE students ADD COLUMN civil_status ENUM('Single', 'Married', 'Widowed', 'Separated') DEFAULT 'Single' AFTER religion`,
+    `ALTER TABLE students ADD COLUMN guardian_name VARCHAR(150) DEFAULT NULL AFTER civil_status`,
     `ALTER TABLE students ADD COLUMN guardian_phone VARCHAR(20) DEFAULT NULL AFTER guardian_name`,
     `ALTER TABLE students ADD COLUMN date_enrolled DATE DEFAULT NULL AFTER guardian_phone`,
     `ALTER TABLE students ADD COLUMN notes TEXT DEFAULT NULL AFTER date_enrolled`,

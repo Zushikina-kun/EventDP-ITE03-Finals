@@ -22,6 +22,10 @@ export const STUDENT_STATUSES = [
   { value: "dropped", label: "Dropped", color: "red" },
 ];
 
+export const GENDERS = ["Male", "Female", "Other"];
+
+export const CIVIL_STATUSES = ["Single", "Married", "Widowed", "Separated"];
+
 export const USER_ROLES = [
   { value: "admin", label: "Admin", description: "Full access — manage users, students, and system settings" },
   { value: "staff", label: "Staff", description: "Can add, edit students. Cannot delete or manage users" },

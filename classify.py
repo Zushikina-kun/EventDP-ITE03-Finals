@@ -73,19 +73,33 @@ def classify_image(img_path: str) -> dict:
         img_path: Path to the image file.
 
     Returns:
-        dict with keys 'label' (str) and 'confidence' (float, 0–100).
+        dict with keys 'label' (str), 'confidence' (float, 0–100),
+        'probabilities' (dict), and 'inference_ms' (float).
         On error, returns dict with key 'error' (str).
     """
+    import time
+
     try:
         img_array = _preprocess(img_path)
 
-        prediction      = model.predict(img_array, verbose=0)
+        start_time = time.perf_counter()
+        prediction = model.predict(img_array, verbose=0)
+        inference_ms = (time.perf_counter() - start_time) * 1000
+
         predicted_class = int(np.argmax(prediction[0]))
         confidence      = float(prediction[0][predicted_class])
 
+        # Build probabilities dict for all classes
+        probabilities = {
+            labels[i]: round(float(prediction[0][i]) * 100, 2)
+            for i in range(len(prediction[0]))
+        }
+
         return {
-            "label":      labels[predicted_class],
-            "confidence": round(confidence * 100, 2),
+            "label":         labels[predicted_class],
+            "confidence":    round(confidence * 100, 2),
+            "probabilities": probabilities,
+            "inference_ms":  round(inference_ms, 1),
         }
     except Exception as e:
         return {"error": str(e)}
