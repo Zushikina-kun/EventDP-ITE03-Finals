@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
     if (stored && !isTokenValid(stored)) {
       localStorage.removeItem("token");
       localStorage.removeItem("username");
+      localStorage.removeItem("role");
       return null;
     }
     return stored || null;
@@ -33,6 +34,10 @@ export function AuthProvider({ children }) {
 
   const [username, setUsername] = useState(() =>
     localStorage.getItem("username") || null
+  );
+
+  const [role, setRole] = useState(() =>
+    localStorage.getItem("role") || null
   );
 
   // Auto-logout when token expires while the app is open
@@ -51,26 +56,35 @@ export function AuthProvider({ children }) {
     return () => clearTimeout(timer);
   }, [token]); // logout is defined in the same component scope and is stable
 
-  function login(newToken, newUsername) {
+  function login(newToken, newUsername, newRole) {
     localStorage.setItem("token", newToken);
     localStorage.setItem("username", newUsername);
+    localStorage.setItem("role", newRole || "staff");
     setToken(newToken);
     setUsername(newUsername);
+    setRole(newRole || "staff");
   }
 
   function logout(reason) {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("role");
     setToken(null);
     setUsername(null);
+    setRole(null);
     // Dispatch event so components can show a toast on session expiry
     if (reason === "expired") {
       window.dispatchEvent(new CustomEvent("session-expired"));
     }
   }
 
+  // Helper to check permissions
+  function hasRole(...roles) {
+    return roles.includes(role);
+  }
+
   return (
-    <AuthContext.Provider value={{ token, username, login, logout }}>
+    <AuthContext.Provider value={{ token, username, role, login, logout, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

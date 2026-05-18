@@ -13,7 +13,7 @@ export default function StudentProfilePage() {
   const [error,   setError]   = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { token } = useAuth();
+  const { token, hasRole } = useAuth();
   const navigate  = useNavigate();
   const { toasts, showToast, removeToast } = useToast();
 
@@ -101,19 +101,42 @@ export default function StudentProfilePage() {
               <InfoCard label="Email" value={student.email} icon="✉️" />
               <InfoCard label="Course" value={student.course} icon="📚" />
               <InfoCard label="Year Level" value={YEAR_LABELS[student.year_level] ?? `Year ${student.year_level}`} icon="🎓" />
+              <InfoCard label="Status" value={student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : "Active"} icon="📋" />
+              {student.section && <InfoCard label="Section" value={student.section} icon="🏫" />}
+              {student.phone && <InfoCard label="Phone" value={student.phone} icon="📱" />}
+              {student.guardian_name && <InfoCard label="Guardian" value={student.guardian_name} icon="👤" />}
+              {student.date_enrolled && <InfoCard label="Date Enrolled" value={new Date(student.date_enrolled).toLocaleDateString()} icon="📅" />}
               <InfoCard label="Student ID" value={`#${student.id}`} icon="🪪" mono />
             </div>
 
+            {student.address && (
+              <div className="mb-6">
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">📍 Address</p>
+                <p className="text-sm text-slate-300">{student.address}</p>
+              </div>
+            )}
+
+            {student.notes && (
+              <div className="mb-6">
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">📝 Notes</p>
+                <p className="text-sm text-slate-400">{student.notes}</p>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t border-slate-800">
-              <Link to={`/students/edit/${student.id}`}
-                className="flex-1 text-center bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl font-semibold transition-all text-sm">
-                Edit Student
-              </Link>
-              <button onClick={() => setShowConfirm(true)}
-                className="flex-1 bg-slate-800 hover:bg-red-500/10 border border-slate-700 hover:border-red-500/30 text-slate-300 hover:text-red-400 py-2.5 rounded-xl font-semibold transition-all text-sm">
-                Delete
-              </button>
+              {hasRole("admin", "staff") && (
+                <Link to={`/students/edit/${student.id}`}
+                  className="flex-1 text-center bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl font-semibold transition-all text-sm">
+                  Edit Student
+                </Link>
+              )}
+              {hasRole("admin") && (
+                <button onClick={() => setShowConfirm(true)}
+                  className="flex-1 bg-slate-800 hover:bg-red-500/10 border border-slate-700 hover:border-red-500/30 text-slate-300 hover:text-red-400 py-2.5 rounded-xl font-semibold transition-all text-sm">
+                  Delete
+                </button>
+              )}
               <Link to="/students"
                 className="px-5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 py-2.5 rounded-xl font-semibold transition-all text-sm">
                 ← Back

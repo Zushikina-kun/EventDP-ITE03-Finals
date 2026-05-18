@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Layout() {
   const [openNav, setOpenNav] = useState(false);
-  const { token, username, logout } = useAuth();
+  const { token, username, role, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -41,7 +41,10 @@ export default function Layout() {
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">
                   {username?.[0]?.toUpperCase() ?? "U"}
                 </div>
-                <span className="hidden sm:block text-slate-300 text-xs">{username}</span>
+                <div className="hidden sm:block">
+                  <span className="text-slate-300 text-xs block leading-tight">{username}</span>
+                  <span className="text-slate-600 text-[10px] uppercase">{role}</span>
+                </div>
               </div>
               <button
                 onClick={handleLogout}

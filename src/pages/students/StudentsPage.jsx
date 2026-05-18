@@ -8,6 +8,13 @@ import SkeletonRow from "../../components/SkeletonRow.jsx";
 const API_URL    = EXPRESS_API;
 const PAGE_SIZE  = 10;
 
+const STATUS_COLORS = {
+  active: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  inactive: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+  graduated: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  dropped: "bg-red-500/20 text-red-400 border-red-500/30",
+};
+
 // ── CSV export helper ─────────────────────────────────────────────────────────
 function exportCSV(students) {
   const header = ["Student No.", "Name", "Email", "Course", "Year Level"];
@@ -55,7 +62,7 @@ export default function StudentsPage() {
   const [sortField,    setSortField]    = useState("name");
   const [sortDir,      setSortDir]      = useState("asc");
   const [page,         setPage]         = useState(1);
-  const { token } = useAuth();
+  const { token, hasRole } = useAuth();
   const { toasts, showToast, removeToast } = useToast();
 
   const fetchStudents = useCallback(async () => {
@@ -160,10 +167,12 @@ export default function StudentsPage() {
                 Export CSV
               </button>
             )}
-            <Link to="/students/add"
-              className="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-xl font-semibold transition-colors text-sm">
-              + Add Student
-            </Link>
+            {hasRole("admin", "staff") && (
+              <Link to="/students/add"
+                className="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-xl font-semibold transition-colors text-sm">
+                + Add Student
+              </Link>
+            )}
           </div>
         </div>
 
@@ -195,15 +204,16 @@ export default function StudentsPage() {
                     <SortTh label="Email"       field="email"      sortField={sortField} sortDir={sortDir} onSort={handleSort} className="hidden sm:table-cell" />
                     <SortTh label="Course"      field="course"     sortField={sortField} sortDir={sortDir} onSort={handleSort} className="hidden md:table-cell" />
                     <SortTh label="Year"        field="year_level" sortField={sortField} sortDir={sortDir} onSort={handleSort} className="hidden md:table-cell" />
+                    <th className="text-left px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wide hidden lg:table-cell">Status</th>
                     <th className="text-right px-4 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
                   {loading ? (
-                    <SkeletonRow count={6} />
+                    <SkeletonRow count={7} />
                   ) : paginated.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="text-center py-16 text-slate-600">
+                      <td colSpan={7} className="text-center py-16 text-slate-600">
                         {search ? "No students match your search." : "No students yet. Add one!"}
                       </td>
                     </tr>
@@ -221,20 +231,29 @@ export default function StudentsPage() {
                           <span className="bg-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded-full">{student.course}</span>
                         </td>
                         <td className="px-4 py-3 text-slate-500 hidden md:table-cell text-xs">Year {student.year_level}</td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${STATUS_COLORS[student.status] || STATUS_COLORS.active}`}>
+                            {student.status || "active"}
+                          </span>
+                        </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex justify-end gap-1">
                             <Link to={`/students/${student.id}`}
                               className="text-slate-400 hover:text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-700 transition-colors">
                               View
                             </Link>
-                            <Link to={`/students/edit/${student.id}`}
-                              className="text-violet-400 hover:text-violet-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-violet-500/10 transition-colors">
-                              Edit
-                            </Link>
-                            <button onClick={() => setDeleteId(student.id)}
-                              className="text-red-400 hover:text-red-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors">
-                              Delete
-                            </button>
+                            {hasRole("admin", "staff") && (
+                              <Link to={`/students/edit/${student.id}`}
+                                className="text-violet-400 hover:text-violet-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-violet-500/10 transition-colors">
+                                Edit
+                              </Link>
+                            )}
+                            {hasRole("admin") && (
+                              <button onClick={() => setDeleteId(student.id)}
+                                className="text-red-400 hover:text-red-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors">
+                                Delete
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

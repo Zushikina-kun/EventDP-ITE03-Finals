@@ -14,3 +14,16 @@ export const COURSES = [
   "BSED",
   "Other",
 ];
+
+export const STUDENT_STATUSES = [
+  { value: "active", label: "Active", color: "emerald" },
+  { value: "inactive", label: "Inactive", color: "slate" },
+  { value: "graduated", label: "Graduated", color: "blue" },
+  { value: "dropped", label: "Dropped", color: "red" },
+];
+
+export const USER_ROLES = [
+  { value: "admin", label: "Admin", description: "Full access — manage users, students, and system settings" },
+  { value: "staff", label: "Staff", description: "Can add, edit students. Cannot delete or manage users" },
+  { value: "viewer", label: "Viewer", description: "Read-only access to student records" },
+];
