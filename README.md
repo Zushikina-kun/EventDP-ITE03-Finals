@@ -1,17 +1,17 @@
 # GenderLens AI — Final Project (ITE03 + EVENTDP)
 
-> A unified full-stack web application combining two subjects into one project, submitted for the finals of **ITE03** (Information Technology 3 — Web Systems & Technologies) and **EVENTDP** (Event-Driven Programming), under the same instructor.
+> A production-grade full-stack web application combining two subjects into one project, submitted for the finals of **ITE03** (Information Technology 3 — Web Systems & Technologies) and **EVENTDP** (Event-Driven Programming), under the same instructor.
 
 ---
 
 ## What This Is
 
-This project fuses two separate subject requirements into a single cohesive web application:
+This project fuses two separate subject requirements into a single cohesive web application suitable for academic institutional use:
 
 | Subject | Feature | Description |
 |---------|---------|-------------|
 | **EVENTDP** | Gender Classification AI | Upload a face image or use your webcam → MobileNetV2 CNN model → returns Male/Female prediction with confidence % |
-| **ITE03** | Student Management System | Full CRUD web app for managing student records, secured with JWT authentication |
+| **ITE03** | Student Management System | Full CRUD web app for managing student records with RBAC, audit trail, and JWT authentication |
 
 ---
 
@@ -27,28 +27,44 @@ This project fuses two separate subject requirements into a single cohesive web 
 - FastAPI backend serving the model on port 8000
 
 ### 🎓 Student Management System (ITE03)
+- **Role-Based Access Control (RBAC):**
+  - **Admin** — full CRUD, delete students, manage users, view audit log, bulk import
+  - **Staff** — add and edit students, view all records
+  - **Viewer** — read-only access to student records
 - Register and login with JWT authentication (8-hour token, auto-logout on expiry)
-- Session expiry toast notification — users are informed when their session ends
+- Session expiry toast notification
 - Full CRUD: Add, view, edit, and delete student records
-- Fields: Student No., Full Name, Email Address, Course, Year Level
-- Server-side input validation (email format, course whitelist, year level range)
+- **Extended student fields:** Student No., Full Name, Email, Course, Year Level, Section, Status (Active/Inactive/Graduated/Dropped), Phone, Address, Guardian Name, Guardian Phone, Date Enrolled, Notes
 - Search across all fields in real time
 - Sortable columns (click any header to sort asc/desc)
 - Pagination (10 records per page)
-- Export to CSV (with success confirmation toast)
+- Export to timestamped CSV (includes all fields)
+- Bulk import up to 500 students at once (admin only)
 - Analytics Dashboard with:
   - Total students, course count, most enrolled course, average per course
   - Donut chart — students by course
   - Bar chart — students by year level
 - Express.js REST API on port 5000, MySQL database via XAMPP
 
-### 🔒 Security
+### 🔒 Security & Compliance
+- Role-based access control (3 tiers: admin, staff, viewer)
 - Rate limiting on authentication endpoints (20 requests per 15 minutes per IP)
 - Username validation (alphanumeric + underscore, minimum 3 characters)
-- Server-side student field validation (email regex, course whitelist, year range 1–4)
+- Server-side student field validation (email regex, course whitelist, year range 1–4, phone format)
 - Parameterized SQL queries (SQL injection protection)
 - JWT token auto-expiry with frontend notification
+- Password change endpoint (verify current password first)
 - Global error handler to prevent stack trace leaks
+- **Full audit trail** — every action logged with user, timestamp, IP, and details
+
+### 📋 Audit Trail
+Every significant action is recorded in the `audit_log` table:
+- Login, register, create, update, delete, import, export
+- Who did it (user ID + username)
+- What was affected (entity + entity ID)
+- Details (JSON — what changed)
+- When (timestamp)
+- From where (IP address)
 
 ### 🎨 Design & UX
 - Dark UI with violet accent color (slate-950 background, slate-900 cards, violet-600 accent)
@@ -57,6 +73,7 @@ This project fuses two separate subject requirements into a single cohesive web 
 - Animated 404 page with auto-redirect countdown
 - Fully responsive layout
 - Collapsible sidebar navigation
+- Role badge displayed next to username
 
 ---
 
@@ -65,7 +82,7 @@ This project fuses two separate subject requirements into a single cohesive web 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React 19, Vite 7, Tailwind CSS 3, React Router v7, Recharts |
-| ML Backend | Python, FastAPI, TensorFlow 2.15, MobileNetV2, Pillow |
+| ML Backend | Python, FastAPI, TensorFlow 2.21, MobileNetV2, Pillow |
 | API Backend | Node.js, Express.js 5, MySQL2, bcryptjs, jsonwebtoken, express-rate-limit |
 | Database | MySQL (via XAMPP) |
 | ML Training | TensorFlow Keras, MobileNetV2 transfer learning |
@@ -79,12 +96,12 @@ This project fuses two separate subject requirements into a single cohesive web 
 ├── src/                        # React frontend
 │   ├── App.jsx                 # Routes + session expiry listener
 │   ├── main.jsx                # Entry point + AuthProvider
-│   ├── config/api.js           # API base URLs + COURSES list
-│   ├── context/AuthContext.jsx # JWT auth state + auto-expiry + event dispatch
+│   ├── config/api.js           # API URLs + COURSES + STATUSES + ROLES
+│   ├── context/AuthContext.jsx # JWT auth + role state + hasRole() helper
 │   ├── components/
 │   │   ├── Toast.jsx           # Toast notification system + useToast hook
-│   │   └── SkeletonRow.jsx     # Loading skeleton for table
-│   ├── layout/NavBar.jsx       # Dark sidebar layout
+│   │   └── SkeletonRow.jsx     # Loading skeleton for table (7 columns)
+│   ├── layout/NavBar.jsx       # Dark sidebar + role badge
 │   └── pages/
 │       ├── LandingPage.jsx     # Hero + About + How It Works + Features + Visual + Developer
 │       ├── ClassifyPage.jsx    # AI classifier (upload + webcam + history)
@@ -93,16 +110,17 @@ This project fuses two separate subject requirements into a single cohesive web 
 │       │   ├── LoginPage.jsx
 │       │   └── RegisterPage.jsx
 │       └── students/
-│           ├── StudentsPage.jsx       # List, search, sort, paginate, CSV export
-│           ├── AddStudentPage.jsx
-│           ├── EditStudentPage.jsx
-│           ├── StudentProfilePage.jsx # Individual student view
+│           ├── StudentsPage.jsx       # List + search + sort + paginate + CSV + status badges
+│           ├── AddStudentPage.jsx     # Full form with all fields
+│           ├── EditStudentPage.jsx    # Pre-filled form with all fields
+│           ├── StudentProfilePage.jsx # Extended profile view
 │           └── DashboardPage.jsx      # Charts & stats
 │
 ├── database/                   # Express backend
-│   ├── server.js               # REST API + rate limiting + validation + error handler
+│   ├── server.js               # REST API + RBAC + audit + validation
 │   ├── mysql.js                # MySQL connection pool
-│   ├── init.sql                # Database setup script + seed data
+│   ├── init.sql                # Full database setup (new installs)
+│   ├── migrate.js              # Schema migration (existing databases)
 │   ├── .env                    # DB credentials + JWT secret (not committed)
 │   └── .env.example            # Template for teammates
 │
@@ -129,9 +147,17 @@ This project fuses two separate subject requirements into a single cohesive web 
 - Python packages: `pip install -r requirements.txt`
 
 ### 1. Database Setup
+
+**New install:**
 Start MySQL in XAMPP, then run `database/init.sql` in phpMyAdmin (or via CLI):
 ```bash
 mysql -u root -e "source database/init.sql"
+```
+
+**Upgrading existing database:**
+```bash
+cd database
+npm run migrate
 ```
 
 ### 2. Express Backend (port 5000)
@@ -140,7 +166,6 @@ cd database
 cp .env.example .env        # then edit JWT_SECRET
 npm install
 npm run dev                  # uses nodemon for auto-restart
-# or: npm start             # for production (no auto-restart)
 ```
 
 ### 3. FastAPI ML Server (port 8000)
@@ -154,22 +179,46 @@ npm install
 npm run dev
 ```
 
+### Default Admin Account
+After running `init.sql` on a fresh database:
+- **Username:** `admin`
+- **Password:** `admin123`
+- **⚠️ Change this password after first login!**
+
+If migrating an existing database, the first registered user is automatically promoted to admin.
+
 ---
 
 ## API Reference
 
 ### Express API (port 5000)
 
+#### Authentication
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/health` | — | Server health check + uptime |
-| POST | `/auth/register` | — | Register new user (rate limited) |
-| POST | `/auth/login` | — | Login, returns JWT (rate limited) |
-| GET | `/students` | JWT | Get all students |
-| GET | `/students/:id` | JWT | Get one student |
-| POST | `/students` | JWT | Add student (validated) |
-| PUT | `/students/:id` | JWT | Update student (validated) |
-| DELETE | `/students/:id` | JWT | Delete student |
+| POST | `/auth/register` | — | Register new user (rate limited, default role: staff) |
+| POST | `/auth/login` | — | Login, returns JWT + role (rate limited) |
+| POST | `/auth/change-password` | JWT | Change own password |
+| GET | `/auth/me` | JWT | Get current user profile |
+
+#### Students (role-gated)
+| Method | Endpoint | Auth | Role | Description |
+|--------|----------|------|------|-------------|
+| GET | `/students` | JWT | Any | Get all students (supports ?status, ?course, ?year_level filters) |
+| GET | `/students/:id` | JWT | Any | Get one student |
+| POST | `/students` | JWT | Admin, Staff | Add student (validated) |
+| POST | `/students/bulk` | JWT | Admin | Bulk import up to 500 students |
+| PUT | `/students/:id` | JWT | Admin, Staff | Update student (validated) |
+| DELETE | `/students/:id` | JWT | Admin | Delete student |
+
+#### Admin Only
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/audit-log` | JWT (Admin) | View audit trail (supports ?action, ?entity, ?user_id filters) |
+| GET | `/users` | JWT (Admin) | List all users |
+| PUT | `/users/:id/role` | JWT (Admin) | Change user role |
+| PUT | `/users/:id/status` | JWT (Admin) | Activate/deactivate user |
 
 ### FastAPI (port 8000)
 
@@ -179,6 +228,20 @@ npm run dev
 | GET | `/health` | Model info + input size + class labels |
 | POST | `/upload` | Upload image → returns label + confidence |
 | POST | `/predict` | Alias for /upload |
+
+---
+
+## Role-Based Access Control
+
+| Role | View Students | Add/Edit | Delete | Manage Users | Audit Log | Bulk Import |
+|------|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Staff** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Viewer** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+- New registrations default to **Staff** role
+- Admins can promote/demote users and deactivate accounts
+- Admins cannot demote themselves or deactivate their own account
 
 ---
 
@@ -214,15 +277,28 @@ JWT_SECRET=your_secret_here_change_this
 
 ---
 
+## Database Migration
+
+If upgrading from an older version of the database:
+```bash
+cd database
+npm run migrate
+```
+
+This safely adds new columns and tables without losing existing data. It's idempotent — safe to run multiple times.
+
+---
+
 ## Design Decisions
 
 - **Dark theme only** — chosen for a modern developer aesthetic that reduces eye strain and looks professional in presentations.
-- **No external auth providers** — JWT with bcrypt keeps the project self-contained and easy to demo without third-party accounts.
+- **RBAC over simple auth** — real institutions need role separation. Viewers can't accidentally modify data, staff can't delete records.
+- **Audit trail** — institutional compliance requires knowing who did what and when. Every action is logged.
+- **Extended student schema** — real academic systems track more than just name and email. Guardian info, enrollment date, and status are essential.
 - **Rate limiting** — prevents brute-force attacks on login without adding complexity like CAPTCHA.
 - **Server-side validation mirrors frontend** — defense in depth; the COURSES whitelist and email regex are enforced on both sides.
 - **Toast notifications over alert()** — non-blocking, auto-dismissing, and visually consistent with the dark UI.
-- **Object URL cleanup** — blob URLs are revoked on component reset/re-pick to prevent memory leaks.
-- **Session expiry event** — uses a custom DOM event so the toast system works regardless of which page the user is on.
+- **Migration script** — allows upgrading existing databases without data loss, essential for production deployments.
 
 ---
 

@@ -54,7 +54,8 @@ A full CRUD (Create, Read, Update, Delete) web application for managing student 
 | **Express.js (Node.js)** | REST API server that handles all student CRUD operations and user authentication (register, login). |
 | **MySQL** | Relational database that stores user accounts (`users` table) and student records (`students` table), accessed via XAMPP. |
 | **bcryptjs** | Node.js library used to hash user passwords with salt before storing them in the database, ensuring passwords are never stored in plain text. |
-| **jsonwebtoken (JWT)** | Used to generate signed authentication tokens on login and verify them on protected API routes. Tokens expire after 8 hours. |
+| **jsonwebtoken (JWT)** | Used to generate signed authentication tokens on login and verify them on protected API routes. Tokens expire after 8 hours. Payload includes user ID, username, and role for RBAC enforcement. |
+| **express-rate-limit** | Middleware that limits repeated requests to auth endpoints (20 per 15 minutes per IP), preventing brute-force attacks without requiring CAPTCHA. |
 
 ### Machine Learning Framework
 
@@ -97,9 +98,9 @@ The entry point of the application. Contains all 7 required sections from Lab 1:
 - **Hero** — Project name "GenderLens AI", tagline, and CTA buttons
 - **About** — Description of the ML model and the student management system, with subject badges
 - **How It Works** — 5-step flow diagram showing the classification process
-- **Features** — 6 feature cards covering both the AI and student management features
+- **Features** — 8 feature cards covering AI, CRUD, RBAC, audit trail, and bulk operations
 - **Visual** — Browser-frame mockups of both interfaces + model workflow diagram
-- **Developer** — Brix A. Directo, BSIT-III
+- **Developer** — Group members and course/section info
 - **Footer** — Copyright, tech stack, developer credit
 
 #### AI Classifier Page (`/classify`) — EVENTDP
@@ -111,15 +112,16 @@ The main feature page for the machine learning component:
 - **History sidebar:** Last 5 classification results with thumbnails
 
 #### Student Management Pages — ITE03
-Protected pages (require JWT login):
-- **`/students`** — Student list table with real-time search, sortable columns, pagination (10/page), Export CSV, Delete confirmation modal
-- **`/students/add`** — Form to create a new student (Student No., Name, Email, Course, Year Level)
-- **`/students/edit/:id`** — Pre-filled form to update an existing student record
+Protected pages (require JWT login), with role-based action visibility:
+- **`/students`** — Student list table with real-time search, sortable columns, pagination (10/page), status badges, Export CSV (timestamped), role-gated Edit/Delete buttons
+- **`/students/:id`** — Student profile page with extended info (guardian, phone, address, notes, enrollment date)
+- **`/students/add`** — Full form with required fields (Student No., Name, Email, Course, Year Level) and optional fields (Section, Status, Phone, Address, Guardian, Notes, Date Enrolled). Only visible to Admin and Staff roles.
+- **`/students/edit/:id`** — Pre-filled form with all fields. Only visible to Admin and Staff roles.
 - **`/students/dashboard`** — Analytics with 4 stat cards, donut chart (by course), bar chart (by year level)
 
 #### Authentication Pages — ITE03
-- **`/login`** — Username and password login form, returns JWT on success
-- **`/register`** — Registration form with password confirmation
+- **`/login`** — Username and password login form, returns JWT + role on success
+- **`/register`** — Registration form with password confirmation (new users get Staff role)
 
 #### 404 Not Found Page
 Animated page for invalid routes with a 5-second countdown auto-redirect to home.

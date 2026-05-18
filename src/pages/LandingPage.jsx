@@ -20,18 +20,28 @@ const FEATURES = [
   },
   {
     icon: "🔒",
-    title: "JWT Authentication & Security",
-    desc: "Secured with JSON Web Tokens, rate-limited auth endpoints, server-side input validation, and automatic session expiry with user notification.",
+    title: "Role-Based Access & Security",
+    desc: "Three-tier RBAC (Admin, Staff, Viewer), rate-limited auth, JWT with auto-expiry, server-side validation, and a full audit trail of every action.",
   },
   {
     icon: "🎓",
-    title: "Full Student CRUD",
-    desc: "Create, read, update, and delete student records with fields for Student No., Full Name, Email, Course, and Year Level — all stored in a MySQL database.",
+    title: "Complete Student Management",
+    desc: "Full CRUD with extended fields — student info, contact details, guardian, enrollment status, section, notes. Bulk CSV import for admins.",
   },
   {
     icon: "📊",
     title: "Analytics Dashboard",
     desc: "Visualize enrollment data with an interactive dashboard featuring stat cards, a donut chart by course, and a bar chart by year level powered by Recharts.",
+  },
+  {
+    icon: "📋",
+    title: "Audit Trail",
+    desc: "Every create, update, delete, login, and import is logged with user, timestamp, IP address, and details — full accountability for institutional compliance.",
+  },
+  {
+    icon: "📥",
+    title: "Bulk Import & Export",
+    desc: "Admins can import up to 500 students at once via JSON. Export filtered student data to timestamped CSV files with all fields included.",
   },
 ];
 
@@ -206,7 +216,7 @@ export default function LandingPage() {
             Everything built into this project — from the AI classifier to the student management system.
           </p>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {FEATURES.map((f, i) => (
               <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition-colors">
                 <div className="text-2xl mb-3">{f.icon}</div>
