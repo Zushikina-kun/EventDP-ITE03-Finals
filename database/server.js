@@ -206,6 +206,43 @@ function validateStudent(body) {
   return null;
 }
 
+// POST bulk import students (admin only) — must be before :id routes
+app.post("/students/bulk", authMiddleware, requireRole("admin"), async (req, res) => {
+  const { students } = req.body;
+  if (!Array.isArray(students) || students.length === 0)
+    return res.status(400).json({ error: "Provide an array of students" });
+  if (students.length > 500)
+    return res.status(400).json({ error: "Maximum 500 students per import" });
+
+  const results = { success: 0, failed: 0, errors: [] };
+
+  for (let i = 0; i < students.length; i++) {
+    const s = students[i];
+    const validationError = validateStudent(s);
+    if (validationError) {
+      results.failed++;
+      results.errors.push({ row: i + 1, student_no: s.student_no || "N/A", error: validationError });
+      continue;
+    }
+
+    try {
+      await db.promise().query(
+        `INSERT INTO students (student_no, name, email, course, year_level, section, status, phone, date_enrolled)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [s.student_no, s.name, s.email, s.course, s.year_level, s.section || null, s.status || "active", s.phone || null, s.date_enrolled || null]
+      );
+      results.success++;
+    } catch (err) {
+      results.failed++;
+      const msg = err.code === "ER_DUP_ENTRY" ? "Duplicate student_no or email" : err.message;
+      results.errors.push({ row: i + 1, student_no: s.student_no, error: msg });
+    }
+  }
+
+  await logAudit(req.user.id, req.user.username, "import", "students", null, { total: students.length, success: results.success, failed: results.failed }, req.ip);
+  res.json(results);
+});
+
 // GET all students (with optional filters)
 app.get("/students", authMiddleware, async (req, res) => {
   try {
@@ -326,43 +363,6 @@ app.delete("/students/:id", authMiddleware, requireRole("admin"), async (req, re
   } catch (err) {
     res.status(500).json({ error: "Failed to delete student" });
   }
-});
-
-// POST bulk import students (admin only)
-app.post("/students/bulk", authMiddleware, requireRole("admin"), async (req, res) => {
-  const { students } = req.body;
-  if (!Array.isArray(students) || students.length === 0)
-    return res.status(400).json({ error: "Provide an array of students" });
-  if (students.length > 500)
-    return res.status(400).json({ error: "Maximum 500 students per import" });
-
-  const results = { success: 0, failed: 0, errors: [] };
-
-  for (let i = 0; i < students.length; i++) {
-    const s = students[i];
-    const validationError = validateStudent(s);
-    if (validationError) {
-      results.failed++;
-      results.errors.push({ row: i + 1, student_no: s.student_no || "N/A", error: validationError });
-      continue;
-    }
-
-    try {
-      await db.promise().query(
-        `INSERT INTO students (student_no, name, email, course, year_level, section, status, phone, date_enrolled)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [s.student_no, s.name, s.email, s.course, s.year_level, s.section || null, s.status || "active", s.phone || null, s.date_enrolled || null]
-      );
-      results.success++;
-    } catch (err) {
-      results.failed++;
-      const msg = err.code === "ER_DUP_ENTRY" ? "Duplicate student_no or email" : err.message;
-      results.errors.push({ row: i + 1, student_no: s.student_no, error: msg });
-    }
-  }
-
-  await logAudit(req.user.id, req.user.username, "import", "students", null, { total: students.length, success: results.success, failed: results.failed }, req.ip);
-  res.json(results);
 });
 
 // ─── Audit Log Routes (admin only) ───────────────────────────────────────────

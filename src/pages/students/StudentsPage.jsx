@@ -17,19 +17,21 @@ const STATUS_COLORS = {
 
 // ── CSV export helper ─────────────────────────────────────────────────────────
 function exportCSV(students) {
-  const header = ["Student No.", "Name", "Email", "Course", "Year Level"];
+  const header = ["Student No.", "Name", "Email", "Course", "Year Level", "Section", "Status", "Phone", "Date Enrolled"];
   const rows   = students.map((s) => [
     s.student_no, s.name, s.email, s.course, `Year ${s.year_level}`,
+    s.section || "", s.status || "active", s.phone || "", s.date_enrolled ? new Date(s.date_enrolled).toLocaleDateString() : "",
   ]);
   const csv = [header, ...rows]
     .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
     .join("\n");
 
+  const timestamp = new Date().toISOString().slice(0, 10);
   const blob = new Blob([csv], { type: "text/csv" });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement("a");
   a.href     = url;
-  a.download = "students.csv";
+  a.download = `students_${timestamp}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
