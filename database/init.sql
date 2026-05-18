@@ -26,19 +26,10 @@ CREATE TABLE IF NOT EXISTS students (
 -- ALTER TABLE students ADD COLUMN student_no VARCHAR(20) NOT NULL UNIQUE AFTER id;
 -- ALTER TABLE students ADD UNIQUE (email);
 
--- ── Seed: Group members ───────────────────────────────────────────────────────
+-- ── Seed data: Group members ──────────────────────────────────────────────────
 INSERT IGNORE INTO students (student_no, name, email, course, year_level) VALUES
 ('2024-BSIT-001', 'Brix A. Directo',              'brix.directo@school.edu',       'BSIT', 3),
 ('2024-BSIT-002', 'Cyrille John M. Rubis',        'cyrille.rubis@school.edu',      'BSIT', 3),
 ('2024-BSIT-003', 'Djaunathan Albert S. Madayag', 'djaunathan.madayag@school.edu', 'BSIT', 3),
 ('2024-BSIT-004', 'Jan Alexis G. Roldan',         'janalexis.roldan@school.edu',   'BSIT', 3),
 ('2024-BSIT-005', 'Jibreel Quimson',              'jibreel.quimson@school.edu',    'BSIT', 3);
-
--- ── Seed data: Group members ──────────────────────────────────────────────────
--- Insert group members as sample students (skip if already exists)
-INSERT IGNORE INTO students (student_no, name, email, course, year_level) VALUES
-  ('2022-00001', 'Brix A. Directo',              'brix.directo@school.edu',       'BSIT', 3),
-  ('2022-00002', 'Cyrille John M. Rubis',        'cyrille.rubis@school.edu',      'BSIT', 3),
-  ('2022-00003', 'Djaunathan Albert S. Madayag', 'djaunathan.madayag@school.edu', 'BSIT', 3),
-  ('2022-00004', 'Jan Alexis G. Roldan',         'jan.roldan@school.edu',         'BSIT', 3),
-  ('2022-00005', 'Jibreel Quimson',              'jibreel.quimson@school.edu',    'BSIT', 3);

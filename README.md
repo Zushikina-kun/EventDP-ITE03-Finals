@@ -1,4 +1,4 @@
-# Final Project — ITE03 + EVENTDP
+# GenderLens AI — Final Project (ITE03 + EVENTDP)
 
 > A unified full-stack web application combining two subjects into one project, submitted for the finals of **ITE03** (Information Technology 3 — Web Systems & Technologies) and **EVENTDP** (Event-Driven Programming), under the same instructor.
 
@@ -28,24 +28,35 @@ This project fuses two separate subject requirements into a single cohesive web 
 
 ### 🎓 Student Management System (ITE03)
 - Register and login with JWT authentication (8-hour token, auto-logout on expiry)
+- Session expiry toast notification — users are informed when their session ends
 - Full CRUD: Add, view, edit, and delete student records
 - Fields: Student No., Full Name, Email Address, Course, Year Level
+- Server-side input validation (email format, course whitelist, year level range)
 - Search across all fields in real time
 - Sortable columns (click any header to sort asc/desc)
 - Pagination (10 records per page)
-- Export to CSV
+- Export to CSV (with success confirmation toast)
 - Analytics Dashboard with:
   - Total students, course count, most enrolled course, average per course
   - Donut chart — students by course
   - Bar chart — students by year level
 - Express.js REST API on port 5000, MySQL database via XAMPP
 
-### General
-- Dark UI with violet accent color
-- Toast notifications (no alert() calls)
+### 🔒 Security
+- Rate limiting on authentication endpoints (20 requests per 15 minutes per IP)
+- Username validation (alphanumeric + underscore, minimum 3 characters)
+- Server-side student field validation (email regex, course whitelist, year range 1–4)
+- Parameterized SQL queries (SQL injection protection)
+- JWT token auto-expiry with frontend notification
+- Global error handler to prevent stack trace leaks
+
+### 🎨 Design & UX
+- Dark UI with violet accent color (slate-950 background, slate-900 cards, violet-600 accent)
+- Toast notifications for all user actions (no alert() calls)
 - Animated skeleton loading states
 - Animated 404 page with auto-redirect countdown
 - Fully responsive layout
+- Collapsible sidebar navigation
 
 ---
 
@@ -53,11 +64,12 @@ This project fuses two separate subject requirements into a single cohesive web 
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, Vite, Tailwind CSS, React Router v7, Recharts |
-| ML Backend | Python, FastAPI, TensorFlow 2.x, MobileNetV2, Pillow |
-| API Backend | Node.js, Express.js, MySQL2, bcryptjs, jsonwebtoken |
+| Frontend | React 19, Vite 7, Tailwind CSS 3, React Router v7, Recharts |
+| ML Backend | Python, FastAPI, TensorFlow 2.15, MobileNetV2, Pillow |
+| API Backend | Node.js, Express.js 5, MySQL2, bcryptjs, jsonwebtoken, express-rate-limit |
 | Database | MySQL (via XAMPP) |
 | ML Training | TensorFlow Keras, MobileNetV2 transfer learning |
+| Dev Tools | ESLint, Nodemon, PostCSS, Autoprefixer |
 
 ---
 
@@ -65,41 +77,45 @@ This project fuses two separate subject requirements into a single cohesive web 
 
 ```
 ├── src/                        # React frontend
-│   ├── App.jsx                 # Routes
+│   ├── App.jsx                 # Routes + session expiry listener
 │   ├── main.jsx                # Entry point + AuthProvider
-│   ├── config/api.js           # API base URLs
-│   ├── context/AuthContext.jsx # JWT auth state + auto-expiry
+│   ├── config/api.js           # API base URLs + COURSES list
+│   ├── context/AuthContext.jsx # JWT auth state + auto-expiry + event dispatch
 │   ├── components/
-│   │   ├── Toast.jsx           # Toast notification system
+│   │   ├── Toast.jsx           # Toast notification system + useToast hook
 │   │   └── SkeletonRow.jsx     # Loading skeleton for table
 │   ├── layout/NavBar.jsx       # Dark sidebar layout
 │   └── pages/
-│       ├── LandingPage.jsx
-│       ├── ClassifyPage.jsx    # AI classifier (upload + webcam)
+│       ├── LandingPage.jsx     # Hero + About + How It Works + Features + Visual + Developer
+│       ├── ClassifyPage.jsx    # AI classifier (upload + webcam + history)
 │       ├── NotFound.jsx        # 404 with countdown
 │       ├── auth/
 │       │   ├── LoginPage.jsx
 │       │   └── RegisterPage.jsx
 │       └── students/
-│           ├── StudentsPage.jsx    # List, search, sort, paginate
+│           ├── StudentsPage.jsx       # List, search, sort, paginate, CSV export
 │           ├── AddStudentPage.jsx
 │           ├── EditStudentPage.jsx
-│           └── DashboardPage.jsx   # Charts & stats
+│           ├── StudentProfilePage.jsx # Individual student view
+│           └── DashboardPage.jsx      # Charts & stats
 │
 ├── database/                   # Express backend
-│   ├── server.js               # REST API routes
+│   ├── server.js               # REST API + rate limiting + validation + error handler
 │   ├── mysql.js                # MySQL connection pool
-│   ├── init.sql                # Database setup script
-│   └── .env                    # DB credentials + JWT secret
+│   ├── init.sql                # Database setup script + seed data
+│   ├── .env                    # DB credentials + JWT secret (not committed)
+│   └── .env.example            # Template for teammates
 │
-├── ml-server.py                # FastAPI server
-├── classify.py                 # Model inference + preprocessing
-├── fine_tune_model.py          # Model training script
-├── evaluate_model.py           # Test-set evaluation script
+├── ml-server.py                # FastAPI server (CORS, file validation, cleanup)
+├── classify.py                 # Model inference + autocontrast preprocessing
+├── fine_tune_model.py          # MobileNetV2 two-phase training script
+├── evaluate_model.py           # Test-set evaluation + confusion matrix
+├── prepare_selfies.py          # Face detection + CLAHE for custom training data
+├── requirements.txt            # Python dependencies
 ├── saved_model/                # Trained .keras model + class labels
-├── train/                      # Training images (female/ male/)
-├── validation/                 # Validation images (female/ male/)
-└── test/                       # Test images (female/ male/)
+├── train/                      # Training images (female/ male/) — ~48k
+├── validation/                 # Validation images (female/ male/) — ~11k
+└── test/                       # Test images (female/ male/) — 150
 ```
 
 ---
@@ -121,8 +137,10 @@ mysql -u root -e "source database/init.sql"
 ### 2. Express Backend (port 5000)
 ```bash
 cd database
+cp .env.example .env        # then edit JWT_SECRET
 npm install
-node server.js
+npm run dev                  # uses nodemon for auto-restart
+# or: npm start             # for production (no auto-restart)
 ```
 
 ### 3. FastAPI ML Server (port 8000)
@@ -144,12 +162,13 @@ npm run dev
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/auth/register` | — | Register new user |
-| POST | `/auth/login` | — | Login, returns JWT |
+| GET | `/health` | — | Server health check + uptime |
+| POST | `/auth/register` | — | Register new user (rate limited) |
+| POST | `/auth/login` | — | Login, returns JWT (rate limited) |
 | GET | `/students` | JWT | Get all students |
 | GET | `/students/:id` | JWT | Get one student |
-| POST | `/students` | JWT | Add student |
-| PUT | `/students/:id` | JWT | Update student |
+| POST | `/students` | JWT | Add student (validated) |
+| PUT | `/students/:id` | JWT | Update student (validated) |
 | DELETE | `/students/:id` | JWT | Delete student |
 
 ### FastAPI (port 8000)
@@ -157,8 +176,9 @@ npm run dev
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/` | Health check |
-| GET | `/health` | Model info + class labels |
+| GET | `/health` | Model info + input size + class labels |
 | POST | `/upload` | Upload image → returns label + confidence |
+| POST | `/predict` | Alias for /upload |
 
 ---
 
@@ -169,24 +189,57 @@ npm run dev
 - **Input size:** 160×160 RGB
 - **Training:** Two-phase — Phase 1 trains head only (base frozen), Phase 2 unfreezes top layers for fine-tuning
 - **Validation accuracy:** 89.97%
+- **Preprocessing:** Auto-contrast normalization + resize + [0,1] scaling
 - **Known limitation:** The CelebA dataset is predominantly Western celebrity faces. The model may misclassify young Asian male faces due to dataset bias — a known issue in gender classification research.
 
 ---
 
 ## Environment Variables
 
-**Root `.env`** (Vite frontend):
+**Root `.env`** (Vite frontend) — see `.env.example`:
 ```
 VITE_EXPRESS_API=http://localhost:5000
 VITE_FASTAPI_URL=http://127.0.0.1:8000
 ```
 
-**`database/.env`** (Express backend):
+**`database/.env`** (Express backend) — see `database/.env.example`:
 ```
 PORT=5000
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=studentdb
-JWT_SECRET=your_secret_here
+JWT_SECRET=your_secret_here_change_this
 ```
+
+---
+
+## Design Decisions
+
+- **Dark theme only** — chosen for a modern developer aesthetic that reduces eye strain and looks professional in presentations.
+- **No external auth providers** — JWT with bcrypt keeps the project self-contained and easy to demo without third-party accounts.
+- **Rate limiting** — prevents brute-force attacks on login without adding complexity like CAPTCHA.
+- **Server-side validation mirrors frontend** — defense in depth; the COURSES whitelist and email regex are enforced on both sides.
+- **Toast notifications over alert()** — non-blocking, auto-dismissing, and visually consistent with the dark UI.
+- **Object URL cleanup** — blob URLs are revoked on component reset/re-pick to prevent memory leaks.
+- **Session expiry event** — uses a custom DOM event so the toast system works regardless of which page the user is on.
+
+---
+
+## Group Members
+
+| Name | Role |
+|------|------|
+| Brix A. Directo | Lead Developer |
+| Cyrille John M. Rubis | Developer |
+| Djaunathan Albert S. Madayag | Developer |
+| Jan Alexis G. Roldan | Developer |
+| Jibreel Quimson | Developer |
+
+**Course / Section:** BSIT-III
+
+---
+
+## License
+
+This project is an academic submission and is not licensed for commercial use.

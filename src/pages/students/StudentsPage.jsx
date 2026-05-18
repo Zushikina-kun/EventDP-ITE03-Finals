@@ -155,7 +155,7 @@ export default function StudentsPage() {
               Dashboard
             </Link>
             {students.length > 0 && (
-              <button onClick={() => exportCSV(sorted)}
+              <button onClick={() => { exportCSV(sorted); showToast("CSV exported!", "success"); }}
                 className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2 rounded-xl font-semibold hover:bg-slate-700 transition-colors text-sm">
                 Export CSV
               </button>

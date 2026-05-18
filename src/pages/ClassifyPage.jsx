@@ -67,6 +67,8 @@ function UploadTab({ onResult }) {
     setFile(f);
     setResult(null);
     setError(null);
+    // Revoke previous object URL to prevent memory leaks
+    if (preview) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(f));
   }
 
@@ -97,6 +99,7 @@ function UploadTab({ onResult }) {
   }
 
   function handleReset() {
+    if (preview) URL.revokeObjectURL(preview);
     setFile(null);
     setPreview(null);
     setResult(null);
@@ -325,7 +328,7 @@ export default function ClassifyPage() {
           <div className="flex flex-wrap justify-center gap-3 mt-4">
             {[
               { label: "Model", value: "MobileNetV2" },
-              { label: "Accuracy", value: "90.13%" },
+              { label: "Accuracy", value: "89.97%" },
               { label: "Input", value: "160×160 px" },
               { label: "Classes", value: "Male / Female" },
             ].map((item) => (

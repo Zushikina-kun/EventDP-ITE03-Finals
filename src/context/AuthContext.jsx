@@ -43,11 +43,11 @@ export function AuthProvider({ children }) {
 
     const remaining = expiry - Date.now();
     if (remaining <= 0) {
-      logout();
+      logout("expired");
       return;
     }
 
-    const timer = setTimeout(logout, remaining);
+    const timer = setTimeout(() => logout("expired"), remaining);
     return () => clearTimeout(timer);
   }, [token]); // logout is defined in the same component scope and is stable
 
@@ -58,11 +58,15 @@ export function AuthProvider({ children }) {
     setUsername(newUsername);
   }
 
-  function logout() {
+  function logout(reason) {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     setToken(null);
     setUsername(null);
+    // Dispatch event so components can show a toast on session expiry
+    if (reason === "expired") {
+      window.dispatchEvent(new CustomEvent("session-expired"));
+    }
   }
 
   return (

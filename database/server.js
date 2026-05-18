@@ -3,6 +3,7 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
 import db from "./mysql.js";
 
 dotenv.config();
@@ -18,6 +19,20 @@ if (!JWT_SECRET) {
 
 app.use(express.json());
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"], credentials: true }));
+
+// ─── Rate Limiting ────────────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,                   // limit each IP to 20 requests per window
+  message: { error: "Too many attempts. Please try again in 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
 
 // ─── Auth Middleware ───────────────────────────────────────────────────────────
 function authMiddleware(req, res, next) {
@@ -38,10 +53,14 @@ function authMiddleware(req, res, next) {
 // ─── Auth Routes ──────────────────────────────────────────────────────────────
 
 // Register
-app.post("/auth/register", async (req, res) => {
+app.post("/auth/register", authLimiter, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
     return res.status(400).json({ error: "Username and password required" });
+  if (typeof username !== "string" || username.trim().length < 3)
+    return res.status(400).json({ error: "Username must be at least 3 characters" });
+  if (!/^[a-zA-Z0-9_]+$/.test(username.trim()))
+    return res.status(400).json({ error: "Username can only contain letters, numbers, and underscores" });
   if (password.length < 6)
     return res.status(400).json({ error: "Password must be at least 6 characters" });
 
@@ -65,7 +84,7 @@ app.post("/auth/register", async (req, res) => {
 });
 
 // Login
-app.post("/auth/login", async (req, res) => {
+app.post("/auth/login", authLimiter, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
     return res.status(400).json({ error: "Username and password required" });
@@ -96,6 +115,28 @@ app.post("/auth/login", async (req, res) => {
 
 // ─── Student CRUD Routes (Protected) ─────────────────────────────────────────
 
+// Allowed courses (must match frontend COURSES list in src/config/api.js)
+const VALID_COURSES = ["BSIT", "BSCS", "BSIS", "BSCE", "BSEE", "BSME", "BSN", "BSBA", "BSED", "Other"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateStudent(body) {
+  const { student_no, name, email, course, year_level } = body;
+  if (!student_no || !name || !email || !course || !year_level)
+    return "All fields are required";
+  if (typeof student_no !== "string" || student_no.trim().length === 0)
+    return "Student number is required";
+  if (typeof name !== "string" || name.trim().length < 2)
+    return "Name must be at least 2 characters";
+  if (!EMAIL_REGEX.test(email))
+    return "Invalid email address";
+  if (!VALID_COURSES.includes(course))
+    return `Invalid course. Allowed: ${VALID_COURSES.join(", ")}`;
+  const yr = Number(year_level);
+  if (!Number.isInteger(yr) || yr < 1 || yr > 4)
+    return "Year level must be between 1 and 4";
+  return null;
+}
+
 // GET all students
 app.get("/students", authMiddleware, async (req, res) => {
   try {
@@ -125,9 +166,10 @@ app.get("/students/:id", authMiddleware, async (req, res) => {
 
 // POST create student
 app.post("/students", authMiddleware, async (req, res) => {
+  const validationError = validateStudent(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
+
   const { student_no, name, email, course, year_level } = req.body;
-  if (!student_no || !name || !email || !course || !year_level)
-    return res.status(400).json({ error: "All fields are required" });
 
   try {
     const [result] = await db.promise().query(
@@ -149,9 +191,10 @@ app.post("/students", authMiddleware, async (req, res) => {
 
 // PUT update student
 app.put("/students/:id", authMiddleware, async (req, res) => {
+  const validationError = validateStudent(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
+
   const { student_no, name, email, course, year_level } = req.body;
-  if (!student_no || !name || !email || !course || !year_level)
-    return res.status(400).json({ error: "All fields are required" });
 
   try {
     const [result] = await db.promise().query(
@@ -185,6 +228,12 @@ app.delete("/students/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ─── Global Error Handler ─────────────────────────────────────────────────────
+app.use((err, req, res, _next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
